@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+  db:
+    #コンテナの名前
+    container_name: rkswk-dokcer-db
+    #イメージのビルド
+    build:
+      dockerfile: Dockerfile
+      context: ./db/
+    #container run --mount で指定していたボリュームのマウントも volumes: で置き換え
+    volumes:
+      - type: volume
+        #作成したボリューム名 
+        source: rkswk-docker-db-volume 
+        #実際のMySQLデーターベース
+        target: /var/lib/mysql
+      #バインドマウント
+      #- type: bind
+      #  source: ./docker/db/init.sql
+      #  target: /docker-entrypoint-initdb.d/init.sql
+    #環境変数の指定
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: ryokawasaki
+      MYSQL_PASSWORD: rkswk
+      MYSQL_DATABASE: rkswk
+
+  php:
+    #コンテナの名前
+    container_name: rkswk-dokcer-php-app
+    #イメージのビルド
+    build:
+      dockerfile: Dockerfile
+      context: ./php/
+    ports:
+      - '18000:8000'
+    volumes:
+      - type: bind
+        source: ./php/src
+        target: /src
+    command: php -S 0.0.0.0:8000 -t /src
+
+  mail:
+    #コンテナの名前
+    container_name: rkswk-dokcer-mail
+    image: mailhog/mailhog:v1.0.1
+    platform: linux/x86_64
+    ports:
+      - "18025:8025"
+
+  rails:
+    #コンテナの名前
+    container_name: rkswk-dokcer-rails-app
+    tty: true
+    depends_on:
+      - db
+    build:
+      context: ./rails/
+      dockerfile: Dockerfile
+    ports:
+      - 13000:3000
+    volumes:
+      - ./api:/app
+    command: rails server -b 0.0.0.0
+
+  front:
+    #コンテナの名前
+    container_name: rkswk-dokcer-front
+    #イメージのビルド
+    build:
+      context: ./front/
+      dockerfile: Dockerfile
+    volumes:
+      - ./front/app:/usr/src/app
+    command: 'yarn dev'
+    ports:
+      - "28000:13000"
+
+#docker volume createの作成を volumes: に変換
+volumes:
+  rkswk-docker-db-volume:
