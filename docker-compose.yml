@@ -10,15 +10,18 @@ services:
       context: .
     #container run --mount で指定していたボリュームのマウントも volumes: で置き換え
     volumes:
-      - type: volume
+      #- type: volume
         #作成したボリューム名 
-        source: rkswk-docker-db-volume 
+        #source: rkswk-docker-db-volume 
         #実際のMySQLデーターベース
-        target: /var/lib/mysql
+        #target: /var/lib/mysql
       #バインドマウント
       - type: bind
-        source: ./db/init.sql
-        target: /docker-entrypoint-initdb.d/init.sql
+        source: ./db/init/
+        target: /docker-entrypoint-initdb.d/
+      - type: bind
+        source: ./db/data/
+        target: /var/lib/mysql
     #環境変数の指定
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -28,28 +31,28 @@ services:
     ports:
       - 4306:3306
 
-  php:
-    #コンテナの名前
-    container_name: rkswk-dokcer-php-app
-    #イメージのビルド
-    build:
-      dockerfile: php/Dockerfile
-      context: .
-    ports:
-      - '18000:8000'
-    volumes:
-      - type: bind
-        source: ./php/src
-        target: /src
-    command: php -S 0.0.0.0:8000 -t /src
+#  php:
+#    #コンテナの名前
+#    container_name: rkswk-dokcer-php-app
+#    #イメージのビルド
+#    build:
+#      dockerfile: php/Dockerfile
+#      context: .
+#    ports:
+#      - '18000:8000'
+#    volumes:
+#      - type: bind
+#        source: ./php/src
+#        target: /src
+#    command: php -S 0.0.0.0:8000 -t /src
 
-  mail:
-    #コンテナの名前
-    container_name: rkswk-dokcer-mail
-    image: mailhog/mailhog:v1.0.1
-    platform: linux/x86_64
-    ports:
-      - "18025:8025"
+#  mail:
+#    #コンテナの名前
+#    container_name: rkswk-dokcer-mail
+#    image: mailhog/mailhog:v1.0.1
+#    platform: linux/x86_64
+#    ports:
+#      - "18025:8025"
 
   rails:
     #コンテナの名前
