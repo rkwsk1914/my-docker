@@ -6,8 +6,8 @@ services:
     container_name: rkswk-dokcer-db
     #イメージのビルド
     build:
-      dockerfile: Dockerfile
-      context: ./db/
+      dockerfile: db/Dockerfile
+      context: .
     #container run --mount で指定していたボリュームのマウントも volumes: で置き換え
     volumes:
       - type: volume
@@ -25,14 +25,16 @@ services:
       MYSQL_USER: ryokawasaki
       MYSQL_PASSWORD: rkswk
       MYSQL_DATABASE: rkswk
+    ports:
+      - 4306:3306
 
   php:
     #コンテナの名前
     container_name: rkswk-dokcer-php-app
     #イメージのビルド
     build:
-      dockerfile: Dockerfile
-      context: ./php/
+      dockerfile: php/Dockerfile
+      context: .
     ports:
       - '18000:8000'
     volumes:
@@ -56,26 +58,31 @@ services:
     depends_on:
       - db
     build:
-      context: ./rails/
-      dockerfile: Dockerfile
+      dockerfile: rails/Dockerfile
+      context: .
     ports:
       - 13000:3000
     volumes:
-      - ./api:/app
-    command: rails server -b 0.0.0.0
+      - type: bind
+        source: ./rails
+        target: /app
+    #command: rails server -b 0.0.0.0
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
 
   front:
     #コンテナの名前
     container_name: rkswk-dokcer-front
     #イメージのビルド
     build:
-      context: ./front/
-      dockerfile: Dockerfile
+      dockerfile: front/Dockerfile
+      context: .
     volumes:
-      - ./front/app:/usr/src/app
+      - type: bind
+        source: ./front/app
+        target: /usr/src/app
     command: 'yarn dev'
     ports:
-      - "28000:13000"
+      - "28000:3000"
 
 #docker volume createの作成を volumes: に変換
 volumes:

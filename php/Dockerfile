@@ -12,15 +12,15 @@ RUN apt update                                       && \
 
 #PHP の設定ファイルを追加
 #設定ファイルの追加などは COPY で行います。
-COPY ./docker/app/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
+COPY ./php/mail.ini /etc/php/8.0/cli/conf.d/mail.ini
 
 #msmtp のインストール
 #msmtp はメールサーバの SMTP クライアントです。
 RUN apt install -yqq msmtp msmtp-mta
 
 #msmtp の設定ファイルを追加
-COPY ./docker/app/mailrc /etc/msmtprc
+COPY ./php/mailrc /etc/msmtprc
 
 #動作確認用コマンドのインストール
 #最後に、curl と ping と ps と vi と tree をインストールしておきます。
-RUN apt install -y curl iputils-ping procps vim tree
+#RUN apt-get install -y curl iputils-ping procps vim tree
