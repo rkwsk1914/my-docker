@@ -16,9 +16,9 @@ services:
         #実際のMySQLデーターベース
         target: /var/lib/mysql
       #バインドマウント
-      #- type: bind
-      #  source: ./docker/db/init.sql
-      #  target: /docker-entrypoint-initdb.d/init.sql
+      - type: bind
+        source: ./db/init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
     #環境変数の指定
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
