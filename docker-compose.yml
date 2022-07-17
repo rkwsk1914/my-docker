@@ -11,8 +11,8 @@ services:
     #container run --mount で指定していたボリュームのマウントも volumes: で置き換え
     volumes:
       #- type: volume
-        #作成したボリューム名 
-        #source: rkswk-docker-db-volume 
+        #作成したボリューム名
+        #source: rkswk-docker-db-volume
         #実際のMySQLデーターベース
         #target: /var/lib/mysql
       #バインドマウント
@@ -46,6 +46,22 @@ services:
 #        target: /src
 #    command: php -S 0.0.0.0:8000 -t /src
 
+  laravel:
+    #コンテナの名前
+    container_name: rkswk-dokcer-laravel-app
+    build:
+      context: .
+      dockerfile: ./laravel/Dockerfile
+    volumes:
+      - ./laravel/src:/var/www/html
+      - ./laravel/apache/sites-available:/etc/apache2/sites-available
+    environment:
+      - APP_ENV=local
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+
 #  mail:
 #    #コンテナの名前
 #    container_name: rkswk-dokcer-mail
@@ -54,38 +70,38 @@ services:
 #    ports:
 #      - "18025:8025"
 
-  rails:
-    #コンテナの名前
-    container_name: rkswk-dokcer-rails-app
-    tty: true
-    depends_on:
-      - db
-    build:
-      dockerfile: rails/Dockerfile
-      context: .
-    ports:
-      - 13000:3000
-    volumes:
-      - type: bind
-        source: ./rails
-        target: /app
-    #command: rails server -b 0.0.0.0
-    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+#  rails:
+#    #コンテナの名前
+#    container_name: rkswk-dokcer-rails-app
+#    tty: true
+#    depends_on:
+#      - db
+#    build:
+#      dockerfile: rails/Dockerfile
+#      context: .
+#    ports:
+#      - 13000:3000
+#    volumes:
+#      - type: bind
+#        source: ./rails
+#        target: /app
+#    #command: rails server -b 0.0.0.0
+#    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
 
-  front:
-    #コンテナの名前
-    container_name: rkswk-dokcer-front
-    #イメージのビルド
-    build:
-      dockerfile: front/Dockerfile
-      context: .
-    volumes:
-      - type: bind
-        source: ./front/app
-        target: /usr/src/app
-    command: 'yarn dev'
-    ports:
-      - "28000:3000"
+#  front:
+#    #コンテナの名前
+#    container_name: rkswk-dokcer-front
+#    #イメージのビルド
+#    build:
+#      dockerfile: front/Dockerfile
+#      context: .
+#    volumes:
+#      - type: bind
+#        source: ./front/app
+#        target: /usr/src/app
+#    command: 'yarn dev'
+#    ports:
+#      - "28000:3000"
 
 #docker volume createの作成を volumes: に変換
 volumes:
